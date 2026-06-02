@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Login - MoodMovie{% endblock %}
+
+{% block content %}
+<div class="container animate-fade-in">
+    <div class="auth-container">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center bg-primary rounded-circle mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; color: var(--accent);">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="h3">Welcome Back</h2>
+            <p class="text-secondary small">Analyze your mood and find matching movies</p>
+        </div>
+
+        <form action="{{ url_for('login') }}" method="POST" id="login-form">
+            <!-- Username/Email Field -->
+            <div class="mb-3">
+                <label for="username_or_email" class="form-label small fw-semibold text-secondary">Username or Email</label>
+                <input type="text" class="form-control form-control-custom" id="username_or_email" name="username_or_email" placeholder="Enter username or email" required>
+                <div class="invalid-feedback">Please enter a valid username or email.</div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label for="password" class="form-label small fw-semibold text-secondary mb-0">Password</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" class="form-control form-control-custom border-end-0" id="password" name="password" placeholder="Enter your password" required>
+                    <button class="btn btn-outline-secondary border-start-0 bg-primary form-control-custom border-color" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" type="button" id="password-toggle" onclick="togglePasswordVisibility('password', 'password-toggle-icon')" aria-label="Toggle password visibility">
+                        <i class="fa-regular fa-eye-slash" id="password-toggle-icon"></i>
+                    </button>
+                </div>
+                <div class="invalid-feedback">Password is required.</div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary-custom w-100 py-3 mb-3" id="login-submit-btn">
+                <i class="fa-solid fa-right-to-bracket me-2"></i>Sign In
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <p class="text-secondary small mb-0">Don't have an account? <a href="{{ url_for('register') }}" class="fw-semibold text-decoration-none" style="color: var(--accent);">Create one here</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * Toggles plaintext password display for convenience.
+     */
+    function togglePasswordVisibility(fieldId, iconId) {
+        const passwordField = document.getElementById(fieldId);
+        const toggleIcon = document.getElementById(iconId);
+        
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+        } else {
+            passwordField.type = "password";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        }
+    }
+</script>
+{% endblock %}

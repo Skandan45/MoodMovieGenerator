@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MoodMovie{% endblock %}
+
+{% block content %}
+<div class="container py-4 animate-fade-in">
+    <!-- Greeting Panel -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 mb-1">Welcome back, <span class="text-primary">{{ session.get('username') }}</span>!</h1>
+            <p class="text-secondary">How are you feeling today? Tell us, and we'll queue up the perfect films.</p>
+        </div>
+    </div>
+
+    <!-- Mood Input Box -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <div class="mood-box">
+                <h3 class="h5 mb-3"><i class="fa-regular fa-face-smile me-2 text-warning"></i>Describe Your Mood</h3>
+                <form id="mood-form" onsubmit="handleMoodSubmit(event)">
+                    <div class="mb-3">
+                        <textarea class="form-control mood-input-textarea w-100" id="mood-input" rows="3" placeholder="Examples: 'I had an incredibly exhausting and frustrating day at the office...', 'Feeling super excited and ready to conquer the world!', 'Just want a peaceful, quiet evening to snuggle up and relax...'" required></textarea>
+                    </div>
+                    
+                    <!-- Pre-built helper prompt tags for testing -->
+                    <div class="mb-4">
+                        <span class="text-secondary small d-block mb-2">Or select a quick mood:</span>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-custom rounded-pill text-nowrap" onclick="setQuickMood('So happy today, got a promotion and everything feels amazing!')">😊 Happy & Thrilled</button>
+                            <button type="button" class="btn btn-sm btn-outline-custom rounded-pill text-nowrap" onclick="setQuickMood('Feeling lonely and a bit down, just want to stay in my bed.')">😢 Down & Comforting</button>
+                            <button type="button" class="btn btn-sm btn-outline-custom rounded-pill text-nowrap" onclick="setQuickMood('I am so in love! Having a special date night with my sweetheart.')">💖 Romantic & Warm</button>
+                            <button type="button" class="btn btn-sm btn-outline-custom rounded-pill text-nowrap" onclick="setQuickMood('I am absolutely furious! This is so frustrating, I hate it!')">🔥 Angry & Heated</button>
+                            <button type="button" class="btn btn-sm btn-outline-custom rounded-pill text-nowrap" onclick="setQuickMood('Just need to chill, read a book, and find a cozy spot.')">🧘 Calm & Serene</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom px-4 py-3" id="detect-mood-btn">
+                        <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Analyze My Mood
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Emotion Detection Feedback Panel (Initially Hidden) -->
+        <div class="col-lg-4 mt-4 mt-lg-0 d-none" id="emotion-panel">
+            <div class="emotion-display-card h-100 d-flex flex-column justify-content-center align-items-center text-center">
+                <span class="emotion-emoji mb-3" id="emotion-emoji">😊</span>
+                <h3 class="h4 mb-1" id="emotion-name">Happy</h3>
+                <div class="badge rounded-pill mb-3 py-2 px-3 text-uppercase" id="emotion-confidence-badge" style="background-color: var(--accent); color: #ffffff;">
+                    Confidence: 95%
+                </div>
+                <p class="text-secondary small px-3 mb-0" id="emotion-explanation">
+                    You're radiating positive vibes! Let's keep the good times rolling with some lighthearted comedies and colorful animations!
+                </p>
+                
+                <!-- Technical breakdown toggler for NLP details -->
+                <div class="mt-4 w-100 border-top pt-3" style="border-color: var(--border-color) !important;">
+                    <button class="btn btn-sm btn-link text-secondary text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#sentimentMetricsCollapse" aria-expanded="false" aria-controls="sentimentMetricsCollapse">
+                        <i class="fa-solid fa-circle-info me-1"></i>NLP Sentiment Score
+                    </button>
+                    <div class="collapse mt-2" id="sentimentMetricsCollapse">
+                        <div class="bg-primary p-3 rounded-3 text-start small border border-color">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Polarity (-1 to 1):</span>
+                                <strong id="metric-polarity">0.0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Subjectivity (0 to 1):</span>
+                                <strong id="metric-subjectivity">0.0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Grid Control Header -->
+    <div class="row align-items-center mb-4 border-top pt-4" style="border-color: var(--border-color) !important;">
+        <div class="col-md-6 mb-3 mb-md-0">
+            <h2 class="h4 mb-0" id="recommendation-grid-title"><i class="fa-solid fa-film text-primary me-2"></i>Trending Suggestions For You</h2>
+        </div>
+        <div class="col-md-6">
+            <!-- Movie Search Bar -->
+            <div class="input-group">
+                <span class="input-group-text bg-secondary border-color text-muted border-end-0" style="border-radius: 12px 0 0 12px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" class="form-control form-control-custom border-start-0" id="movie-search-bar" placeholder="Search movies by title instantly..." oninput="handleSearchInput(this)" style="border-radius: 0 12px 12px 0;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Grid Container -->
+    <div class="row g-4" id="movies-grid">
+        <!-- Javascript will populate this section dynamically. -->
+    </div>
+</div>
+{% endblock %}

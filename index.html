@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}MoodMovie - Mood-Based AI Movie Recommendations{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center text-lg-start animate-fade-in">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <h1 class="hero-title" id="hero-heading">
+                    Unlock Movies That Match Your <span>Exact Vibe</span>.
+                </h1>
+                <p class="lead text-secondary mb-4" id="hero-subtitle">
+                    Fusing NLP Sentiment Analysis with TMDB to instantly map how you feel to a hand-picked queue of matching cinema masterpieces. No more endless scrolling.
+                </p>
+                <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3">
+                    {% if session.get('user_id') %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary-custom px-4 py-3" id="hero-cta-dashboard">
+                            <i class="fa-solid fa-gauge-high me-2"></i>Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('watchlist_page') }}" class="btn btn-outline-custom px-4 py-3" id="hero-cta-watchlist">
+                            <i class="fa-solid fa-heart me-2"></i>My Watchlist
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-primary-custom px-4 py-3" id="hero-cta-register">
+                            <i class="fa-solid fa-user-plus me-2"></i>Get Started Free
+                        </a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-custom px-4 py-3" id="hero-cta-login">
+                            <i class="fa-solid fa-right-to-bracket me-2"></i>Sign In
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Dynamic Trending Movies Carousel Container -->
+            <div class="col-lg-6">
+                <div class="p-3 border rounded-4 bg-secondary shadow">
+                    <h3 class="h5 mb-3 text-center text-lg-start">
+                        <i class="fa-solid fa-fire text-danger me-2"></i>Trending This Week
+                    </h3>
+                    
+                    <div id="trendingCarousel" class="carousel slide trending-carousel" data-bs-ride="carousel">
+                        <div class="carousel-inner" id="trending-carousel-inner">
+                            <!-- Skeleton loader loading state -->
+                            <div class="carousel-item active">
+                                <div class="position-relative" style="height: 380px; background-color: var(--bg-primary);">
+                                    <div class="skeleton-shimmer h-100 w-100 d-flex flex-column justify-content-center align-items-center">
+                                        <i class="fa-solid fa-spinner fa-spin fa-2x text-muted mb-3"></i>
+                                        <p class="text-secondary small">Fetching latest box-office hits...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#trendingCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#trendingCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Overview Grid -->
+<section class="py-5" style="border-top: 1px solid var(--border-color);">
+    <div class="container">
+        <div class="text-center mb-5 animate-fade-in">
+            <h2 class="h1">How It Works</h2>
+            <p class="text-secondary">Transforming emotional vibes into tailored lists in three simple steps.</p>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <!-- Step 1 -->
+            <div class="col-md-4 text-center">
+                <div class="p-4 border rounded-4 bg-secondary shadow-sm h-100 card-movie d-flex flex-column align-items-center">
+                    <div class="d-flex align-items-center justify-content-center bg-primary rounded-circle mb-4" style="width: 70px; height: 70px; font-size: 1.8rem; color: var(--accent);">
+                        <i class="fa-regular fa-comment-dots"></i>
+                    </div>
+                    <h4>1. Express Yourself</h4>
+                    <p class="text-secondary mb-0">Type how your day went, standard descriptions, or direct feelings in free text. No filters needed.</p>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="col-md-4 text-center">
+                <div class="p-4 border rounded-4 bg-secondary shadow-sm h-100 card-movie d-flex flex-column align-items-center">
+                    <div class="d-flex align-items-center justify-content-center bg-primary rounded-circle mb-4" style="width: 70px; height: 70px; font-size: 1.8rem; color: var(--accent);">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h4>2. AI Sentiment Engine</h4>
+                    <p class="text-secondary mb-0">Our backend TextBlob NLP assesses polarity and subjectivity, categorizing your status into 8 precise emotional vibes.</p>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="col-md-4 text-center">
+                <div class="p-4 border rounded-4 bg-secondary shadow-sm h-100 card-movie d-flex flex-column align-items-center">
+                    <div class="d-flex align-items-center justify-content-center bg-primary rounded-circle mb-4" style="width: 70px; height: 70px; font-size: 1.8rem; color: var(--accent);">
+                        <i class="fa-solid fa-ticket"></i>
+                    </div>
+                    <h4>3. Enjoy Recommendations</h4>
+                    <p class="text-secondary mb-0">Dynamic genre mappings hook onto TMDB API to display a movie carousel matching your mood perfectly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
