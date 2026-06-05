@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI-Powered Mood Movie Recommender{% endblock %}</title>
+    <!-- Meta Descriptions for SEO -->
+    <meta name="description" content="Get personalized, AI-powered movie recommendations based on your current emotional mood. Simply type how you feel and find your next favorite film.">
+    <meta name="keywords" content="movies, AI movie recommendations, mood analysis, emotional movie finder, TextBlob, TMDB API, Flask film recommender">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/style.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Custom Theme Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Dynamic Glassmorphic Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}" id="nav-brand-logo">
+                <i class="fa-solid fa-clapperboard me-2"></i>Mood<span>Movie</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if session.get('user_id') %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('dashboard') %}active{% endif %}" href="{{ url_for('dashboard') }}" id="nav-link-dashboard">
+                                <i class="fa-solid fa-chart-line me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('watchlist_page') %}active{% endif %}" href="{{ url_for('watchlist_page') }}" id="nav-link-watchlist">
+                                <i class="fa-solid fa-heart me-1"></i>Watchlist
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('history_page') %}active{% endif %}" href="{{ url_for('history_page') }}" id="nav-link-history">
+                                <i class="fa-solid fa-clock-rotate-left me-1"></i>History
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-3">
+                            <span class="navbar-text me-2 text-truncate d-none d-xl-inline">
+                                <i class="fa-regular fa-user me-1"></i>Hello, <strong>{{ session.get('username') }}</strong>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-custom py-2 px-3 ms-lg-2" href="{{ url_for('logout') }}" id="nav-link-logout">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('login') %}active{% endif %}" href="{{ url_for('login') }}" id="nav-link-login">
+                                Login
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-primary-custom" href="{{ url_for('register') }}" id="nav-link-register">
+                                Get Started
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <!-- Dark/Light Theme Toggle Button -->
+                    <li class="nav-item ms-lg-3">
+                        <button class="theme-toggle-btn" id="theme-toggler" title="Toggle color scheme" aria-label="Toggle color theme">
+                            <i class="fa-solid fa-moon" id="theme-icon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flask Flash Message System -->
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show rounded-4 border-0 shadow-sm animate-fade-in" role="alert">
+                        <i class="fa-solid {% if category == 'danger' %}fa-triangle-exclamation{% elif category == 'success' %}fa-circle-check{% else %}fa-circle-info{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main View Dynamic Container -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Custom Footing Section -->
+    <footer class="text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-1">&copy; 2026 MoodMovie. Powered by Gemini, Flask, and TMDB.</p>
+            <p class="text-muted small mb-0">Crafted with ❤️ for cinema lovers.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle (with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="crossorigin"></script>
+    
+    <!-- Main Vanilla JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
