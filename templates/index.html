@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}MOODFLIX - Mood-Based Movie Recommendation System{% endblock %}
+
+{% block content %}
+<!-- Large Premium Cinema Hero -->
+<section class="hero-section text-center text-lg-start animate-fade-in">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="hero-title" id="hero-heading">
+                    Mood-Based Movie Recommendation System
+                </h1>
+                <p class="hero-subtitle mx-auto mb-4" id="hero-subtitle">
+                    Find the perfect movie for your current mood. Fusing Natural Language Processing with live catalog streams to match how you feel to standard cinema hits.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    {% if session.get('user_id') %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary-custom px-4 py-3" id="hero-cta-dashboard" style="font-size: 1rem; border-radius: 4px;">
+                            <i class="fa-solid fa-play me-2"></i>Enter Workspace
+                        </a>
+                        <a href="{{ url_for('watchlist_page') }}" class="btn btn-outline-custom px-4 py-3" id="hero-cta-watchlist" style="font-size: 1rem; border-radius: 4px;">
+                            <i class="fa-solid fa-heart me-2"></i>My Watchlist
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-primary-custom px-5 py-3" id="hero-cta-register" style="font-size: 1.1rem; border-radius: 4px;">
+                            <i class="fa-solid fa-ticket me-2"></i>Get Started Free
+                        </a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-custom px-4 py-3" id="hero-cta-login" style="font-size: 1.1rem; border-radius: 4px;">
+                            Sign In
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Netflix Horizontal Cinema Slider -->
+<section class="py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="h4 mb-4 font-heading text-white">
+                    <i class="fa-solid fa-fire text-danger me-2"></i>Trending Movies This Week
+                </h3>
+                
+                <!-- Horizontal scrollable card container -->
+                <div class="trending-slider-container" id="trending-carousel-inner">
+                    <!-- Dynamic slider cards populated by JavaScript loadLandingTrendingCarousel -->
+                    <div class="netflix-loader">
+                        <div class="spinner"></div>
+                        <p>Scanning cinema databases...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Information Science & Engineering Project Structure Section -->
+<section class="py-5" style="border-top: 1px solid var(--border-glass); background-color: rgba(20,20,20,0.4);">
+    <div class="container">
+        <div class="text-center mb-5 animate-fade-in">
+            <h2 class="h3 font-heading text-white">System Architecture & NLP Workflow</h2>
+            <p class="text-secondary small">Understanding the Information Science and engineering modules powering MOODFLIX.</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Module 1 -->
+            <div class="col-md-4">
+                <div class="p-4 border rounded-3 bg-secondary h-100 d-flex flex-column align-items-center text-center" style="border-color: var(--border-glass) !important;">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; background-color: rgba(229, 9, 20, 0.1); color: var(--accent);">
+                        <i class="fa-regular fa-comment-dots"></i>
+                    </div>
+                    <h4 class="h5 font-heading text-white">NLP Sentiment Engine</h4>
+                    <p class="text-secondary small mb-0">Accepts free-text prompts from users. The text undergoes tokenization and polarity checking using TextBlob to calculate emotional metrics.</p>
+                </div>
+            </div>
+            
+            <!-- Module 2 -->
+            <div class="col-md-4">
+                <div class="p-4 border rounded-3 bg-secondary h-100 d-flex flex-column align-items-center text-center" style="border-color: var(--border-glass) !important;">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; background-color: rgba(229, 9, 20, 0.1); color: var(--accent);">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                    <h4 class="h5 font-heading text-white">Flask Backend Router</h4>
+                    <p class="text-secondary small mb-0">A Python Flask server acts as the middleware router. It processes user credentials, manages secure sessions, and interacts with SQLite databases.</p>
+                </div>
+            </div>
+            
+            <!-- Module 3 -->
+            <div class="col-md-4">
+                <div class="p-4 border rounded-3 bg-secondary h-100 d-flex flex-column align-items-center text-center" style="border-color: var(--border-glass) !important;">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; background-color: rgba(229, 9, 20, 0.1); color: var(--accent);">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <h4 class="h5 font-heading text-white">TMDB Integration Client</h4>
+                    <p class="text-secondary small mb-0">Dispatches secure API calls to TMDB's remote servers. Fetches genre matrices, search results, and embeds YouTube trailer keys dynamically.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

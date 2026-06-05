@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - MOODFLIX{% endblock %}
+
+{% block content %}
+<div class="container animate-fade-in">
+    <div class="auth-container">
+        <div class="mb-4">
+            <h2 class="h3 font-heading text-white mb-2">Sign In</h2>
+            <p class="text-secondary small">Analyze your mood and discover streaming recommendations</p>
+        </div>
+
+        <form action="{{ url_for('login') }}" method="POST" id="login-form">
+            <!-- Username/Email Field -->
+            <div class="mb-3">
+                <label for="username_or_email" class="form-label small fw-semibold text-secondary">Username or Email</label>
+                <input type="text" class="form-control form-control-custom w-100" id="username_or_email" name="username_or_email" placeholder="Enter username or email" required>
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-4">
+                <label for="password" class="form-label small fw-semibold text-secondary">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control form-control-custom border-end-0" id="password" name="password" placeholder="Enter password" required style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                    <button class="btn btn-outline-secondary border-0 form-control-custom" type="button" id="password-toggle" onclick="togglePasswordVisibility('password', 'password-toggle-icon')" aria-label="Toggle password visibility" style="border-top-left-radius: 0; border-bottom-left-radius: 0; background-color: #333; color: var(--text-secondary);">
+                        <i class="fa-regular fa-eye-slash" id="password-toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary-custom w-100 py-3 mb-3 font-heading" id="login-submit-btn" style="border-radius: 4px; font-size: 1rem;">
+                Sign In
+            </button>
+        </form>
+
+        <div class="mt-4">
+            <p class="text-secondary small mb-0">New to MOODFLIX? <a href="{{ url_for('register') }}" class="fw-semibold text-decoration-none text-white" style="transition: var(--transition-smooth);">Sign up now.</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * Toggles plaintext password display for convenience.
+     */
+    function togglePasswordVisibility(fieldId, iconId) {
+        const passwordField = document.getElementById(fieldId);
+        const toggleIcon = document.getElementById(iconId);
+        
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+        } else {
+            passwordField.type = "password";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Workspace - MOODFLIX{% endblock %}
+
+{% block content %}
+<div class="container py-5 animate-fade-in">
+    <!-- Header Vitals -->
+    <div class="row mb-5">
+        <div class="col-12 text-center text-md-start">
+            <h1 class="h3 font-heading mb-1 text-white">
+                Dashboard <span class="text-danger">Workspace</span>
+            </h1>
+            <p class="text-secondary small mb-0">Select your active mood or write a custom description to map film recommendations.</p>
+        </div>
+    </div>
+
+    <!-- 1. Mood Cards Selection Grid (Netflix style genre cards) -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="mood-card-container">
+                <h3 class="h5 font-heading text-white mb-2">
+                    <i class="fa-regular fa-face-smile text-danger me-2"></i>Select Your Mood
+                </h3>
+                <p class="text-secondary small mb-4">Click any card to instantly suggest movies matching that active theme.</p>
+                
+                <div class="mood-card-grid">
+                    <!-- Happy Card -->
+                    <div class="mood-select-card" onclick="selectMoodCard(this, 'happy', 'Happy')">
+                        <div class="emoji-box">😊</div>
+                        <div class="mood-label">Happy</div>
+                    </div>
+                    <!-- Sad Card -->
+                    <div class="mood-select-card" onclick="selectMoodCard(this, 'sad', 'Sad')">
+                        <div class="emoji-box">😢</div>
+                        <div class="mood-label">Sad</div>
+                    </div>
+                    <!-- Action/Excited Card -->
+                    <div class="mood-select-card" onclick="selectMoodCard(this, 'excited', 'Action')">
+                        <div class="emoji-box">🔥</div>
+                        <div class="mood-label">Action</div>
+                    </div>
+                    <!-- Romantic Card -->
+                    <div class="mood-select-card" onclick="selectMoodCard(this, 'romantic', 'Romantic')">
+                        <div class="emoji-box">❤️</div>
+                        <div class="mood-label">Romantic</div>
+                    </div>
+                    <!-- Horror/Fear Card -->
+                    <div class="mood-select-card" onclick="selectMoodCard(this, 'fear', 'Horror')">
+                        <div class="emoji-box">👻</div>
+                        <div class="mood-label">Horror</div>
+                    </div>
+                    <!-- Motivational/Motivated Card -->
+                    <div class="mood-select-card" onclick="selectMoodCard(this, 'motivated', 'Motivational')">
+                        <div class="emoji-box">💪</div>
+                        <div class="mood-label">Motivational</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Custom NLP Sentiment Search Textbox -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8">
+            <div class="nlp-textarea-container h-100">
+                <h3 class="h5 font-heading text-white mb-3">
+                    <i class="fa-solid fa-brain text-danger me-2"></i>AI Natural Language Processing Analysis
+                </h3>
+                <p class="text-secondary small mb-4">Describe how your day went or write down a complex feeling. Our TextBlob engine will compute polarity valence values.</p>
+                
+                <form id="mood-form" onsubmit="handleMoodSubmit(event)">
+                    <div class="mb-4">
+                        <textarea class="form-control mood-input-textarea w-100" id="mood-input" rows="3" placeholder="Type here... (e.g. 'I am feeling absolutely overwhelmed with joy today, got a promotion!', 'Feeling a bit low and lonely, just want to relax.')" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary-custom px-4 py-3" id="detect-mood-btn">
+                        <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Analyze Sentiment Vibe
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- NLP Output Detection Result (Initially Hidden) -->
+        <div class="col-lg-4 d-none" id="emotion-panel">
+            <div class="emotion-display-card h-100 d-flex flex-column justify-content-center align-items-center">
+                <span class="emotion-emoji mb-3" id="emotion-emoji">😊</span>
+                <h4 class="h4 text-white font-heading mb-1" id="emotion-name">Happy</h4>
+                <div class="badge bg-danger rounded-pill mb-3 py-2 px-3 text-uppercase font-heading" id="emotion-confidence-badge" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                    Confidence: 95%
+                </div>
+                <p class="text-secondary small mb-4" id="emotion-explanation">
+                    Laughter is the best medicine! Handpicked comedies and animations to make you smile.
+                </p>
+                
+                <!-- Polarity metrics breakdown -->
+                <div class="w-100 border-top pt-3" style="border-color: var(--border-glass) !important;">
+                    <button class="btn btn-sm btn-link text-secondary text-decoration-none font-heading fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#sentimentMetricsCollapse" aria-expanded="false" aria-controls="sentimentMetricsCollapse" style="font-size: 0.75rem;">
+                        <i class="fa-solid fa-circle-info me-1"></i>View Technical Metrics
+                    </button>
+                    <div class="collapse mt-2" id="sentimentMetricsCollapse">
+                        <div class="p-3 rounded bg-black text-start small border border-color" style="font-size: 0.78rem;">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Polarity (-1 to 1):</span>
+                                <strong id="metric-polarity" class="text-white">0.0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Subjectivity (0 to 1):</span>
+                                <strong id="metric-subjectivity" class="text-white">0.0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live TMDB Query Options & Title -->
+    <div class="row align-items-center mb-4 border-top pt-5" style="border-color: var(--border-glass) !important;">
+        <div class="col-md-6 mb-3 mb-md-0">
+            <h2 class="h4 font-heading text-white mb-0" id="recommendation-grid-title">
+                <i class="fa-solid fa-film text-danger me-2"></i>Trending Suggestions For You
+            </h2>
+        </div>
+        <div class="col-md-6">
+            <!-- Search bar -->
+            <div class="input-group">
+                <span class="input-group-text bg-secondary border-0 text-muted" style="border-radius: 4px 0 0 4px; padding-left: 15px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" class="form-control form-control-custom border-start-0" id="movie-search-bar" placeholder="Type a title to search instantly..." oninput="handleSearchInput(this)" style="border-radius: 0 4px 4px 0;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Card Grid Container -->
+    <div class="row g-4" id="movies-grid">
+        <!-- Dynmically loaded by static/js/main.js -->
+    </div>
+</div>
+{% endblock %}

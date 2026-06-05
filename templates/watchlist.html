@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}My Watchlist - MOODFLIX{% endblock %}
+
+{% block content %}
+<div class="container py-5 animate-fade-in">
+    <!-- Watchlist Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center text-md-start">
+            <h1 class="h3 font-heading text-white mb-1"><i class="fa-solid fa-heart text-danger me-2"></i>My Watchlist</h1>
+            <p class="text-secondary small">Your customized catalog of bookmarked movies.</p>
+        </div>
+    </div>
+
+    <!-- Watchlist Grid Container -->
+    <div class="row g-4" id="watchlist-grid">
+        <!-- Dynmically loaded by static/js/main.js -->
+    </div>
+</div>
+{% endblock %}

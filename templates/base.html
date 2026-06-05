@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mood-Based Movie Recommendation System{% endblock %}</title>
+    <!-- Meta tags for SEO & Project Presentation -->
+    <meta name="description" content="Cinematic Netflix-inspired movie recommendation system powered by NLP sentiment analysis and live TMDB database queries.">
+    <meta name="keywords" content="movies, AI recommendations, TextBlob NLP, SQLite, TMDB, mini-project, Information Science Engineering">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Custom Theme Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Transparent Netflix-Style Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}" id="nav-brand-logo">
+                <i class="fa-solid fa-film me-2"></i>MOOD<span>FLIX</span>
+            </a>
+            
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation" style="box-shadow: none;">
+                <i class="fa-solid fa-bars fa-lg"></i>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    {% if session.get('user_id') %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('dashboard') %}active{% endif %}" href="{{ url_for('dashboard') }}">Movies</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('watchlist_page') %}active{% endif %}" href="{{ url_for('watchlist_page') }}">Watchlist</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('history_page') %}active{% endif %}" href="{{ url_for('history_page') }}">History Journal</a>
+                        </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if session.get('user_id') %}
+                        <li class="nav-item d-none d-lg-inline me-3">
+                            <span class="navbar-text text-secondary small">
+                                <i class="fa-regular fa-user me-1 text-danger"></i>User: <strong>{{ session.get('username') }}</strong>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn-nav-login py-2 px-3 text-decoration-none" href="{{ url_for('logout') }}" id="nav-link-logout">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i>Sign Out
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link me-3" href="{{ url_for('login') }}" id="nav-link-login">Sign In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn-nav-login py-2 px-3 text-decoration-none" href="{{ url_for('register') }}" id="nav-link-register">
+                                Join Now
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <!-- Dark/Light Theme Toggle Button -->
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                        <button class="theme-toggle-btn" id="theme-toggler" title="Toggle Theme" aria-label="Toggle Theme">
+                            <i class="fa-solid fa-moon" id="theme-icon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flask Flash Message System -->
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show rounded-3 border-0 bg-secondary text-white shadow animate-fade-in" role="alert" style="border-left: 4px solid var(--accent) !important;">
+                        <i class="fa-solid {% if category == 'danger' %}fa-triangle-exclamation text-danger{% elif category == 'success' %}fa-circle-check text-success{% else %}fa-circle-info text-info{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main View Dynamic Container -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Dynamic Video Trailer Modal (Netflix Style) -->
+    <div class="modal fade" id="trailerModal" tabindex="-1" aria-labelledby="trailerModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title h5 font-heading fw-bold" id="trailerModalLabel">Watch Trailer</h5>
+                    <button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="video-container" id="trailerVideoContainer">
+                        <!-- Responsive Youtube iframe will be injected here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Academic Presentation Footer -->
+    <footer class="mt-5 text-center text-md-start">
+        <div class="container">
+            <div class="row align-items-center g-4">
+                <div class="col-md-6 text-center text-md-start">
+                    <h5 class="h6 text-white font-heading mb-2">Mood-Based Movie Recommendation System</h5>
+                    <p class="text-secondary small mb-0">An Information Science & Engineering Mini-Project presentation scaffold. Combines Natural Language Processing with live catalog streaming.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <span class="tech-badge">Python</span>
+                    <span class="tech-badge">Flask</span>
+                    <span class="tech-badge">TextBlob NLP</span>
+                    <span class="tech-badge">SQLite</span>
+                    <span class="tech-badge">TMDB API</span>
+                    <span class="tech-badge">Bootstrap 5</span>
+                    <div class="mt-2 text-muted small">&copy; 2026 MOODFLIX. Built with ❤️ for academic mini-project evaluation.</div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle (with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    
+    <!-- Main Vanilla JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

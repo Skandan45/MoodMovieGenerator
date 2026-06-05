@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}My Sentiment History - MOODFLIX{% endblock %}
+
+{% block content %}
+<div class="container py-5 animate-fade-in">
+    <!-- Header Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-sm-8 mb-3 mb-sm-0 text-center text-sm-start">
+            <h1 class="h3 font-heading text-white mb-1"><i class="fa-solid fa-clock-rotate-left text-danger me-2"></i>Sentiment Analysis Journal</h1>
+            <p class="text-secondary small mb-0">A log of your emotional expressions and the films they triggered.</p>
+        </div>
+        <div class="col-sm-4 text-center text-sm-end d-none" id="clear-history-action-container">
+            <button class="btn btn-outline-danger btn-sm px-3 py-2 rounded-2" onclick="confirmWipeHistory()" style="font-size: 0.85rem; font-weight: 600;">
+                <i class="fa-regular fa-trash-can me-1"></i>Clear History Log
+            </button>
+        </div>
+    </div>
+
+    <!-- History Log Table -->
+    <div class="row">
+        <div class="col-12" id="history-content-container">
+            <!-- Loading skeletal state -->
+            <div class="netflix-loader" id="history-loading-indicator">
+                <div class="spinner"></div>
+                <p>Retrieving your sentiment journal...</p>
+            </div>
+            
+            <!-- Table wrapper (filled by Javascript) -->
+            <div class="table-responsive-container d-none" id="history-table-wrapper">
+                <table class="table table-hover custom-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 25%">Date & Time</th>
+                            <th scope="col" style="width: 40%">Mood Description</th>
+                            <th scope="col" style="width: 15%">Detected Emotion</th>
+                            <th scope="col" style="width: 20%">Linked Movie</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty state (filled by JS) -->
+            <div class="d-none" id="history-empty-state">
+                <div class="bg-secondary border border-color rounded-4 py-5 text-center">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-calendar-xmark empty-state-icon text-muted"></i>
+                        <h3>Your Journal is Empty</h3>
+                        <p class="text-secondary mb-4">You haven't checked your mood recommendations yet. Let's analyze one!</p>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary-custom px-4 py-2">
+                            <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Analyze My Mood
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

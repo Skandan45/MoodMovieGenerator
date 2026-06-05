@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - MOODFLIX{% endblock %}
+
+{% block content %}
+<div class="container animate-fade-in">
+    <div class="auth-container" style="max-width: 480px;">
+        <div class="mb-4">
+            <h2 class="h3 font-heading text-white mb-2">Create Account</h2>
+            <p class="text-secondary small">Start matching your vibes to cinema suggestions</p>
+        </div>
+
+        <form action="{{ url_for('register') }}" method="POST" id="register-form" onsubmit="return validateRegistrationForm()">
+            <!-- Username Field -->
+            <div class="mb-3">
+                <label for="username" class="form-label small fw-semibold text-secondary">Username</label>
+                <input type="text" class="form-control form-control-custom w-100" id="username" name="username" placeholder="Choose a username" minlength="3" maxlength="20" required>
+                <div class="form-text small text-muted" style="font-size: 0.72rem;">Must be 3-20 characters (alphanumeric or underscores).</div>
+            </div>
+
+            <!-- Email Field -->
+            <div class="mb-3">
+                <label for="email" class="form-label small fw-semibold text-secondary">Email Address</label>
+                <input type="email" class="form-control form-control-custom w-100" id="email" name="email" placeholder="name@example.com" required>
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-3">
+                <label for="password" class="form-label small fw-semibold text-secondary">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control form-control-custom border-end-0" id="password" name="password" placeholder="At least 6 characters" minlength="6" required style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                    <button class="btn btn-outline-secondary border-0 form-control-custom" type="button" id="password-toggle" onclick="togglePasswordVisibility('password', 'password-toggle-icon')" aria-label="Toggle password visibility" style="border-top-left-radius: 0; border-bottom-left-radius: 0; background-color: #333; color: var(--text-secondary);">
+                        <i class="fa-regular fa-eye-slash" id="password-toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div class="mb-4">
+                <label for="confirm_password" class="form-label small fw-semibold text-secondary">Confirm Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control form-control-custom border-end-0" id="confirm_password" name="confirm_password" placeholder="Verify password" required style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                    <button class="btn btn-outline-secondary border-0 form-control-custom" type="button" id="confirm-password-toggle" onclick="togglePasswordVisibility('confirm_password', 'confirm-password-toggle-icon')" aria-label="Toggle password visibility" style="border-top-left-radius: 0; border-bottom-left-radius: 0; background-color: #333; color: var(--text-secondary);">
+                        <i class="fa-regular fa-eye-slash" id="confirm-password-toggle-icon"></i>
+                    </button>
+                </div>
+                <div id="password-mismatch-msg" class="text-danger small mt-2 d-none">
+                    <i class="fa-solid fa-circle-exclamation me-1"></i>Passwords do not match.
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary-custom w-100 py-3 mb-3 font-heading" id="register-submit-btn" style="border-radius: 4px; font-size: 1rem;">
+                Create Account
+            </button>
+        </form>
+
+        <div class="mt-4">
+            <p class="text-secondary small mb-0">Already a member? <a href="{{ url_for('login') }}" class="fw-semibold text-decoration-none text-white">Sign in here.</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * Toggles plaintext password display for convenience.
+     */
+    function togglePasswordVisibility(fieldId, iconId) {
+        const passwordField = document.getElementById(fieldId);
+        const toggleIcon = document.getElementById(iconId);
+        
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+        } else {
+            passwordField.type = "password";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        }
+    }
+
+    /**
+     * Client-side validation ensuring passwords match.
+     */
+    function validateRegistrationForm() {
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm_password").value;
+        const mismatchMsg = document.getElementById("password-mismatch-msg");
+
+        if (password !== confirmPassword) {
+            mismatchMsg.classList.remove("d-none");
+            return false;
+        } else {
+            mismatchMsg.classList.add("d-none");
+            return true;
+        }
+    }
+</script>
+{% endblock %}
