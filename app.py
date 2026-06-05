@@ -739,7 +739,6 @@ def api_clear_history():
     finally:
         db.close()
 
-<<<<<<< HEAD
 @app.route("/api/movies/trailer/<int:movie_id>", methods=["GET"])
 @login_required
 def api_movie_trailer(movie_id):
@@ -802,8 +801,6 @@ def api_movie_trailer(movie_id):
         print(f"Trailer API Fallback triggered: {e}")
         fallback_key = trailers.get(movie_id, "dQw4w9WgXcQ")
         return jsonify({"key": fallback_key})
-
-=======
->>>>>>> 9228687bc2abe34135830aaf9c1bc55a84538bbb
+                        
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
