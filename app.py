@@ -398,7 +398,8 @@ def tmdb_request(endpoint, params=None):
         default_params.update(params)
 
     try:
-    logger.info(f"TMDB request to {endpoint} with params {default_params}")
+        logger.info(f"TMDB request to {endpoint} with params {default_params}")
+        response = requests.get(url, params=default_params, timeout=10)
         if response.status_code == 200:
             return response.json()
         else:
