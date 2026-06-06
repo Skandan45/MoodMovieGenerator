@@ -593,7 +593,8 @@ def api_movies_mood(emotion):
     selected_movie_title = request.args.get("selected_title", "").strip()
     selected_movie_id = request.args.get("selected_id", None)
 
-    if mood_prompt:
+    # Log history only if user is authenticated
+    if "user_id" in session:
         db = get_db()
         try:
             db.execute(
@@ -602,9 +603,11 @@ def api_movies_mood(emotion):
             )
             db.commit()
         except Exception as e:
-            print(f"Error logging history: {e}")
+            logger.error(f"Error logging history: {e}")
         finally:
             db.close()
+    else:
+        logger.info("Skipping history log: user not authenticated.")
 
     try:
 

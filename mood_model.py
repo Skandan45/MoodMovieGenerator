@@ -17,14 +17,14 @@ except ImportError:
 # TMDB Genre ID mappings
 # Note: "motivated" is mapped to History (36) and Drama (18) to get inspiring true stories and biographical sports dramas.
 EMOTION_GENRES = {
-    "happy": [35, 16],        # Comedy, Animation
-    "sad": [18],              # Drama
-    "romantic": [10749],      # Romance
-    "excited": [28, 12],      # Action, Adventure
-    "relaxed": [99, 10751],   # Documentary, Family
-    "angry": [53],            # Thriller
-    "motivated": [36, 18],    # History, Drama (inspirational)
-    "fear": [27, 9648]        # Horror, Mystery
+    "happy": [35, 10751, 12],        # Comedy, Family, Adventure
+    "sad": [18, 35, 10751],          # Drama, Comedy (Feel‑Good), Family
+    "romantic": [10749],             # Romance
+    "excited": [28, 12, 53],         # Action, Adventure, Thriller
+    "relaxed": [16, 10751],          # Animation, Family
+    "angry": [18, 80],               # Drama, Crime
+    "motivated": [36, 18],           # History, Drama (unchanged)
+    "fear": [27, 9648]               # Horror, Mystery
 }
 
 # Emotion Display Metas (emoji and explanation)
