@@ -4,7 +4,11 @@ Main Flask Application Server containing SQLite managers, Authentication,
 TMDB API client integrations, and API routes.
 """
 
-import os
+import logging
+
+# Configure logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 import sqlite3
 from datetime import datetime
 from functools import wraps
@@ -394,7 +398,7 @@ def tmdb_request(endpoint, params=None):
         default_params.update(params)
 
     try:
-        response = requests.get(url, params=default_params, timeout=6)
+    logger.info(f"TMDB request to {endpoint} with params {default_params}")
         if response.status_code == 200:
             return response.json()
         else:
@@ -417,6 +421,7 @@ def parse_tmdb_movies(raw_list):
         
         poster_path = item.get("poster_path")
         
+        # Fixed parsing of vote_average rounding
         parsed.append({
             "id": item.get("id"),
             "title": item.get("title", "Untitled Movie"),

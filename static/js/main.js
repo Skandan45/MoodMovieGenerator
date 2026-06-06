@@ -307,13 +307,20 @@ async function handleMoodSubmit(event) {
         const langParam = language ? `&lang=${encodeURIComponent(language)}` : '';
         const languageNames = { kn: 'Kannada', te: 'Telugu', ta: 'Tamil', ml: 'Malayalam', all: 'All Languages' };
         const languageLabel = language && languageNames[language] ? languageNames[language] : '';
-        const movieUrl = `/api/movies/mood/${analysis.emotion}?mood_prompt=${encodeURIComponent(promptText)}${langParam}`;
-        // Update grid title with language info if present
-        if (languageLabel) {
-            gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Matched Vibe: ${displayEmotion} (${languageLabel})`;
-        } else {
-            gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Matched Vibe: ${displayEmotion}`;
-        }
+// Construct movie API URL
+const movieUrl = `/api/movies/mood/${analysis.emotion}?mood_prompt=${encodeURIComponent(promptText)}${langParam}`;
+// Update grid title with language info if present
+if (languageLabel) {
+    gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Matched Vibe: ${displayEmotion} (${languageLabel})`;
+} else {
+    gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Matched Vibe: ${displayEmotion}`;
+}
+// Fetch movies from backend
+const moviesResponse = await fetch(movieUrl);
+if (!moviesResponse.ok) throw new Error();
+const movies = await moviesResponse.json();
+// Render movies grid
+renderMovieGrid("movies-grid", movies);
 
     } catch (err) {
         console.error("NLP Submit Error:", err);
