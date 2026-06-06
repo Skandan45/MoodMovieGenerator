@@ -596,7 +596,12 @@ def api_movies_mood(emotion):
 
         # Handle language filtering
         language = request.args.get('lang', '').strip()
-        print("Language:", language)
+        allowed_langs = {'en', 'hi', 'kn', 'te', 'ta', 'ml', 'all', ''}
+        if language not in allowed_langs:
+            return jsonify({"error": "Invalid language selection."}), 400
+
+        raw_data = None
+
         if language and language != 'all':
             # Single language filter
             tmdb_params = {
@@ -635,7 +640,24 @@ def api_movies_mood(emotion):
                 "page": 1
             })
 
-        results = raw_data.get("results", [])[:12] # return first 12 recommendations
+        results = raw_data.get("results", [])[:12]
+
+        # Fallback if TMDB returned no results
+        if not results:
+            # Attempt to fetch popular movies for the selected language (if any)
+            if language and language != 'all':
+                fallback_raw = tmdb_request("/discover/movie", {
+                    "sort_by": "popularity.desc",
+                    "page": 1,
+                    "with_original_language": language
+                })
+                results = fallback_raw.get("results", [])[:12]
+
+        if not results:
+            # Final fallback to mock data
+            fallback_data = MOCK_MOVIES.get(emotion, MOCK_MOVIES["relaxed"])
+            return jsonify(fallback_data)
+
         parsed = parse_tmdb_movies(results)
         return jsonify(parsed)
 
