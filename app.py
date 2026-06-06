@@ -19,7 +19,7 @@ from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 
-from mood_model import detect_emotion, EMOTION_META
+from mood_model import detect_emotion, EMOTION_META, EMOTION_GENRES
 
 # Load Environment variables from .env
 load_dotenv()
@@ -385,10 +385,11 @@ def login_required(f):
 def tmdb_request(endpoint, params=None):
     """
     Makes a safe request to TMDB API.
-    Raises exceptions on server error, enabling clean fallbacks.
+    Logs request and response status. Returns empty dict if API key missing.
     """
     if not TMDB_API_KEY:
-        raise ValueError("TMDB API Key missing. Falling back.")
+        logger.warning("TMDB API Key missing.")
+        return {}
 
     url = f"{TMDB_BASE_URL}{endpoint}"
     default_params = {
@@ -399,16 +400,16 @@ def tmdb_request(endpoint, params=None):
         default_params.update(params)
 
     try:
-        logger.info(f"TMDB request to {endpoint} with params {default_params}")
+        logger.info(f"TMDB request to {endpoint}")
         response = requests.get(url, params=default_params, timeout=10)
+        logger.info(f"TMDB response status: {response.status_code}")
+        
         if response.status_code == 200:
             return response.json()
-        else:
-            print(f"TMDB HTTP Error {response.status_code} for {endpoint}")
-            raise IOError("TMDB returned an error.")
+        return {}
     except requests.exceptions.RequestException as e:
-        print(f"TMDB Connection Error: {e}")
-        raise IOError("Could not connect to TMDB.")
+        logger.error(f"TMDB Connection Error: {e}")
+        return {}
 
 def parse_tmdb_movies(raw_list):
     """Parses raw TMDB movies dictionary into a standardized frontend clean dict."""
@@ -570,18 +571,24 @@ def api_detect_mood():
         return jsonify({"error": "Failed to analyze mood sentiment."}), 500
 
 @app.route("/api/movies/mood/<emotion>", methods=["GET"])
-@login_required
 def api_movies_mood(emotion):
     """Queries TMDB discover movies matching the selected emotion genre IDs."""
     if emotion not in EMOTION_META:
         return jsonify({"error": "Invalid emotion queried."}), 400
 
     # Get list of genre IDs for the emotion
-    genres = detect_emotion(emotion)["genres"]
+    genres = EMOTION_GENRES.get(emotion, [])
+    logger.info(f"Emotion: {emotion}, genre IDs: {genres}")
     # Convert list of genre IDs to comma‑separated string for TMDB API
     genre_str = ','.join(str(g) for g in genres)
 
-    # Optional history tracking: If requested to log this check in history database
+    # Verify TMDB API key presence
+    if not TMDB_API_KEY:
+        logger.warning("TMDB API key missing; returning mock data for emotion '%s'.", emotion)
+        fallback_data = MOCK_MOVIES.get(emotion, MOCK_MOVIES["relaxed"])
+        return jsonify(fallback_data)
+
+    # Retrieve optional parameters for history logging
     mood_prompt = request.args.get("mood_prompt", "").strip()
     selected_movie_title = request.args.get("selected_title", "").strip()
     selected_movie_id = request.args.get("selected_id", None)
@@ -605,6 +612,7 @@ def api_movies_mood(emotion):
         language = request.args.get('lang', '').strip()
         allowed_langs = {'en', 'hi', 'kn', 'te', 'ta', 'ml', 'all', ''}
         if language not in allowed_langs:
+            logger.warning(f"Invalid language '{language}' for emotion '{emotion}'. Returning 400.")
             return jsonify({"error": "Invalid language selection."}), 400
 
         raw_data = None
@@ -648,9 +656,11 @@ def api_movies_mood(emotion):
             })
 
         results = raw_data.get("results", [])[:12]
+        logger.info(f"TMDB returned {len(results)} movies for emotion '{emotion}' with language '{language}' via /api/movies/mood/{emotion}. Status: 200.")
 
         # Fallback if TMDB returned no results
         if not results:
+            logger.info(f"No results from TMDB for emotion '{emotion}' with language '{language}'. Attempting fallback.")
             # Attempt to fetch popular movies for the selected language (if any)
             if language and language != 'all':
                 fallback_raw = tmdb_request("/discover/movie", {
@@ -661,7 +671,7 @@ def api_movies_mood(emotion):
                 results = fallback_raw.get("results", [])[:12]
 
         if not results:
-            # Final fallback to mock data
+            logger.info(f"Fallback to mock data for emotion '{emotion}'. Count: {len(results)}. Status: 200.")
             fallback_data = MOCK_MOVIES.get(emotion, MOCK_MOVIES["relaxed"])
             return jsonify(fallback_data)
 
@@ -669,8 +679,7 @@ def api_movies_mood(emotion):
         return jsonify(parsed)
 
     except Exception as e:
-        print(f"API Mood Movies lookup fallback activated: {e}")
-        # Fetch matching elements from local high-quality mock library
+        logger.error(f"API Mood Movies exception for emotion '{emotion}': {e}")
         fallback_data = MOCK_MOVIES.get(emotion, MOCK_MOVIES["relaxed"])
         return jsonify(fallback_data)
 
