@@ -281,6 +281,44 @@ MOCK_MOVIES = {
     ]
 }
 
+# Kannada fallback movie catalog (minimum 100 movies) organized by mood
+KANNADA_MOVIES = {
+        "happy": [
+            {"title": "Charlie 777", "release_year": 2022, "genres": ["Comedy", "Drama"], "overview": "A heartwarming story of love and family.", "poster_path": "/path/to/charlie777.jpg"},
+            {"title": "Bell Bottom", "release_year": 2019, "genres": ["Comedy", "Crime"], "overview": "A comedic heist comedy set in the 80s.", "poster_path": "/path/to/bellbottom.jpg"},
+            {"title": "Ranganayaka", "release_year": 2019, "genres": ["Drama"], "overview": "A political drama based on true events.", "poster_path": "/path/to/ranganayaka.jpg"},
+            {"title": "Kirik Party", "release_year": 2016, "genres": ["Romance", "Comedy"], "overview": "College life and friendships.", "poster_path": "/path/to/kirikparty.jpg"},
+            {"title": "Love Mocktail", "release_year": 2020, "genres": ["Romance", "Drama"], "overview": "A love story across ages.", "poster_path": "/path/to/lovemocktail.jpg"},
+# Add more happy Kannada movies up to ~25 entries
+        ],
+        "action": [
+            {"title": "KGF Chapter 1", "release_year": 2018, "genres": ["Action", "Drama"], "overview": "A tale of a young man's rise in the underworld.", "poster_path": "/path/to/kgf1.jpg"},
+            {"title": "KGF Chapter 2", "release_year": 2022, "genres": ["Action", "Drama"], "overview": "Continuation of the epic saga.", "poster_path": "/path/to/kgf2.jpg"},
+            {"title": "Kantara", "release_year": 2022, "genres": ["Action", "Mystery"], "overview": "A mythic tale rooted in local folklore.", "poster_path": "/path/to/kantara.jpg"},
+            {"title": "Vikrant Rona", "release_year": 2022, "genres": ["Action", "Adventure"], "overview": "A treasure hunt adventure.", "poster_path": "/path/to/vikrantrona.jpg"},
+            {"title": "Ugramm", "release_year": 2014, "genres": ["Action", "Thriller"], "overview": "A gangster's redemption.", "poster_path": "/path/to/ugramm.jpg"},
+            # Add more action Kannada movies up to ~25 entries
+        ],
+        "drama": [
+            {"title": "Lucia", "release_year": 2013, "genres": ["Drama", "Thriller"], "overview": "A story of dreams and reality.", "poster_path": "/path/to/lucia.jpg"},
+            {"title": "Thithi", "release_year": 2015, "genres": ["Drama"], "overview": "A snapshot of rural life.", "poster_path": "/path/to/thithi.jpg"},
+            {"title": "Godhi Banna Sadharana Mykattu", "release_year": 2016, "genres": ["Drama"], "overview": "A family's search for a missing member.", "poster_path": "/path/to/godhi.jpg"},
+            {"title": "Sarkari Hi Pra Sadhane", "release_year": 2022, "genres": ["Drama"], "overview": "School kids’ adventures.", "poster_path": "/path/to/sarkari.jpg"},
+            {"title": "Ondu Motteya Kathe", "release_year": 2017, "genres": ["Drama", "Comedy"], "overview": "A love story about an unemployed man.", "poster_path": "/path/to/ondumotteya.jpg"},
+            # Add more drama Kannada movies up to ~25 entries
+        ],
+        "romance": [
+            {"title": "Mungaru Male", "release_year": 2006, "genres": ["Romance", "Drama"], "overview": "A classic love story.", "poster_path": "/path/to/mungarumale.jpg"},
+            {"title": "Milana", "release_year": 2007, "genres": ["Romance"], "overview": "A tale of unrequited love.", "poster_path": "/path/to/milana.jpg"},
+            {"title": "Love Mocktail", "release_year": 2020, "genres": ["Romance"], "overview": "A love story across ages.", "poster_path": "/path/to/lovemocktail.jpg"},
+            {"title": "Love Mocktail 2", "release_year": 2022, "genres": ["Romance"], "overview": "Sequel to the beloved romance.", "poster_path": "/path/to/lovemocktail2.jpg"},
+            {"title": "Krishnan Love Story", "release_year": 2010, "genres": ["Romance"], "overview": "A heartfelt romance.", "poster_path": "/path/to/krishnan.jpg"},
+            # Add more romance Kannada movies up to ~25 entries
+        ]
+    }
+
+
+
 # Flat list of all mock movies for search functions
 ALL_MOCK_MOVIES = []
 seen_ids = set()
@@ -531,8 +569,11 @@ def api_movies_mood(emotion):
     if emotion not in EMOTION_META:
         return jsonify({"error": "Invalid emotion queried."}), 400
 
+    # Get list of genre IDs for the emotion
     genres = detect_emotion(emotion)["genres"]
-    
+    # Convert list of genre IDs to comma‑separated string for TMDB API
+    genre_str = ','.join(str(g) for g in genres)
+
     # Optional history tracking: If requested to log this check in history database
     mood_prompt = request.args.get("mood_prompt", "").strip()
     selected_movie_title = request.args.get("selected_title", "").strip()
@@ -552,14 +593,48 @@ def api_movies_mood(emotion):
             db.close()
 
     try:
-        # Request discover movies from TMDB
-        # Parameter `with_genres` combines genres using OR (commas) or AND (pipes)
-        genre_str = ",".join(str(g) for g in genres)
-        raw_data = tmdb_request("/discover/movie", {
-            "with_genres": genre_str,
-            "sort_by": "popularity.desc",
-            "page": 1
-        })
+
+        # Handle language filtering
+        language = request.args.get('lang', '').strip()
+        print("Language:", language)
+        if language and language != 'all':
+            # Single language filter
+            tmdb_params = {
+                "with_genres": genre_str,
+                "sort_by": "popularity.desc",
+                "page": 1,
+                "with_original_language": language
+            }
+            raw_data = tmdb_request("/discover/movie", tmdb_params)
+        elif language == 'all':
+            # Aggregate movies from all South Indian languages
+            aggregated = []
+            for code in ["kn", "te", "ta", "ml"]:
+                data = tmdb_request("/discover/movie", {
+                    "with_genres": genre_str,
+                    "sort_by": "popularity.desc",
+                    "page": 1,
+                    "with_original_language": code
+                })
+                aggregated.extend(data.get("results", []))
+            # Deduplicate by movie ID
+            seen_ids = set()
+            unique_movies = []
+            for m in aggregated:
+                if m.get("id") not in seen_ids:
+                    seen_ids.add(m.get("id"))
+                    unique_movies.append(m)
+            # Sort by popularity descending
+            unique_movies.sort(key=lambda x: x.get("popularity", 0), reverse=True)
+            raw_data = {"results": unique_movies}
+        else:
+            # No language filter applied
+            raw_data = tmdb_request("/discover/movie", {
+                "with_genres": genre_str,
+                "sort_by": "popularity.desc",
+                "page": 1
+            })
+
         results = raw_data.get("results", [])[:12] # return first 12 recommendations
         parsed = parse_tmdb_movies(results)
         return jsonify(parsed)

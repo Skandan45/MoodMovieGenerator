@@ -102,6 +102,26 @@ h1, h2, h3, h4, h5, h6 {
     background-color: rgba(255, 255, 255, 0.04);
 }
 
+/* Developer badge styling */
+.nav-item.developer-badge .badge-developer {
+    font-size: 0.85rem;
+    padding: 4px 10px;
+    border-radius: var(--border-radius-sm);
+    background: var(--accent-gradient);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: var(--transition-smooth);
+}
+.nav-item.developer-badge .badge-developer:hover {
+    background: var(--accent-gradient-hover);
+    transform: translateY(-1px);
+}
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
 /* SaaS Floating Auth Buttons in nav */
 .btn-nav-login {
     background: var(--accent-gradient);

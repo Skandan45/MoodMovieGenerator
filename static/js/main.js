@@ -199,7 +199,18 @@ async function selectMoodCard(moodElement, emotionKey, labelText) {
     try {
         // Log this choice in history database by calling discover endpoint with prompt
         const promptText = `Clicked mood card: ${labelText}`;
-        const movieUrl = `/api/movies/mood/${emotionKey}?mood_prompt=${encodeURIComponent(promptText)}&selected_title=${labelText}`;
+        const language = document.getElementById('language-selector')?.value || '';
+        const langParam = language ? `&lang=${encodeURIComponent(language)}` : '';
+        const languageNames = { kn: 'Kannada', te: 'Telugu', ta: 'Tamil', ml: 'Malayalam', all: 'All South Indian' };
+        const languageLabel = language && languageNames[language] ? languageNames[language] : '';
+        const movieUrl = `/api/movies/mood/${emotionKey}?mood_prompt=${encodeURIComponent(promptText)}${langParam}&selected_title=${labelText}`;
+        // Prepare grid title with language if selected
+
+        if (languageLabel) {
+            gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Recommended for feeling ${labelText} (${languageLabel})`;
+        } else {
+            gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Recommended for feeling ${labelText}`;
+        }
         
         const response = await fetch(movieUrl);
         if (!response.ok) throw new Error();
@@ -290,15 +301,19 @@ async function handleMoodSubmit(event) {
         
         emotionPanel.classList.remove("d-none");
 
-        // Step 3: Fetch movie listings
-        const movieUrl = `/api/movies/mood/${analysis.emotion}?mood_prompt=${encodeURIComponent(promptText)}`;
-        const moviesResponse = await fetch(movieUrl);
-        if (!moviesResponse.ok) throw new Error();
-        const movies = await moviesResponse.json();
-
-        // Step 4: Render Grid
-        gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Matched Vibe: ${displayEmotion}`;
-        renderMovieGrid("movies-grid", movies);
+        // Capture selected language
+        const languageSelect = document.getElementById('language-selector');
+        const language = languageSelect ? languageSelect.value : '';
+        const langParam = language ? `&lang=${encodeURIComponent(language)}` : '';
+        const languageNames = { kn: 'Kannada', te: 'Telugu', ta: 'Tamil', ml: 'Malayalam', all: 'All Languages' };
+        const languageLabel = language && languageNames[language] ? languageNames[language] : '';
+        const movieUrl = `/api/movies/mood/${analysis.emotion}?mood_prompt=${encodeURIComponent(promptText)}${langParam}`;
+        // Update grid title with language info if present
+        if (languageLabel) {
+            gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Matched Vibe: ${displayEmotion} (${languageLabel})`;
+        } else {
+            gridTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>Matched Vibe: ${displayEmotion}`;
+        }
 
     } catch (err) {
         console.error("NLP Submit Error:", err);
