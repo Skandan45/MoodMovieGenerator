@@ -66,16 +66,18 @@ http://127.0.0.1:5000
 ## 📸 Screenshots
 
 ### Screenshot 1
-![Screenshot 1](mood%20movie%201.png)
+![Screenshot 1](mood%20movie%202.png)
 
 ### Screenshot 2
-![Screenshot 2](mood%20movie%202.png)
+![Screenshot 2](mood%20movie%201.png)
 
 ### Screenshot 3
-![Screenshot 3](mood%20movie%203.png)
+![Screenshot 3](mood%20movie%204.png)
 
 ### Screenshot 4
-![Screenshot 4](mood%20movie%204.png)
+![Screenshot 4](mood%20movie%203.png)
+
+
 
 ## 👨‍💻 Author
 
